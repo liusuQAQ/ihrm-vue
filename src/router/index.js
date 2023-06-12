@@ -87,6 +87,7 @@ router.beforeEach((to, from, next) => {
         store
           .dispatch('GetUserInfo')
           .then(res => {
+            console.log(res)
             // 拉取user_info
             const roles = res.data.data.roles // note: roles must be a array! such as: ['editor','develop']
             store.dispatch('GenerateRoutes', {roles}).then(() => {

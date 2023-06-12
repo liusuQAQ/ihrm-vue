@@ -23,6 +23,7 @@ import departments from '@/module-departments/' // 部门管理
 import employees from '@/module-employees/' // 角色管理
 import settings from '@/module-settings/'
 import permissions from '@/module-permissions/'
+import recruitment from '@/module-recruitment/'
 
 import tools from './utils/common.js'
 Vue.prototype.$tools = tools
@@ -35,6 +36,7 @@ Vue.use(departments,store)
 Vue.use(employees,store)
 Vue.use(settings,store)
 Vue.use(permissions,store)
+Vue.use(recruitment,store)
 /*
 * 注册 - 组件
 */

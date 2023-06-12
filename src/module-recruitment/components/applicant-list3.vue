@@ -5,19 +5,35 @@
       <div>
         <!-- 头部信息  -->
         <div class="userInfo">
-          <el-button type="primary" size="mini" icon="el-icon-plus" @click="handlerAdd">新增角色</el-button>
+          <!-- 新增按钮 -->
+          <el-button type="primary" size="mini" icon="el-icon-plus" @click="handlerAdd">新增应聘者</el-button>
+          
+          <!-- 数据表格 -->
           <el-table :data="dataList" border fit highlight-current-row style="width:100%; margin-top:10px;">
-                <el-table-column type="index" :index="1" label="序号" width="150"> </el-table-column>
-                <el-table-column sortable prop="name" label="角色名" width="150"></el-table-column>
-                <el-table-column sortable prop="description" label="描述"></el-table-column>
-                <el-table-column fixed="right" label="操作" align="center" width="250">
+                <el-table-column type="index" :index="1" label="序号" width="100"> </el-table-column>
+                <el-table-column sortable prop="name" label="姓名" width="150"></el-table-column>
+                <el-table-column sortable prop="mobile" label="电话" width="150"></el-table-column>
+                <el-table-column sortable prop="email" label="邮箱" width="200"></el-table-column>
+                <el-table-column sortable prop="jobName" label="应聘岗位" width="150"></el-table-column>
+                <el-table-column sortable prop="curriculumVitae" label="简历" width="150"></el-table-column>
+
+                <el-table-column sortable  label="通过状态" width="150">
                   <template slot-scope="scope">
-                    <el-button @click="handlerPerm(scope.row)" type="text" size="small">分配权限</el-button>
-                    <el-button @click="handleUpdate(scope.row)" type="text" size="small">修改</el-button>
+                    <el-tag v-if="scope.row.offer == 0" type="info">未开始</el-tag>
+                    <el-tag v-if="scope.row.offer == 1" type="success">通过</el-tag>
+                    <el-tag v-if="scope.row.offer == 2" type="danger">未通过</el-tag>
+                  </template>
+                  
+                </el-table-column>
+
+                <el-table-column fixed="right" label="操作" align="center" width="130">
+                  <template slot-scope="scope">
+                    <el-button @click="handleUpdate(scope.row)" type="text" size="small">设置</el-button>
                     <el-button @click="handleDelete(scope.row)" type="text" size="small">删除</el-button>
                   </template>
                 </el-table-column>
           </el-table>
+
           <div class="pagination">
             <PageTool :paginationPage="requestParameters.page" :paginationPagesize="requestParameters.pagesize" :total="counts" @pageChange="handleCurrentChange" @pageSizeChange="handleSizeChange">
             </PageTool>
@@ -25,43 +41,82 @@
         </div>
       </div>
     </div>
-    <el-dialog title="编辑角色" :visible.sync="dialogFormVisible" style="hight:100px;line-height:1px">
+    <!-- 修改弹出的框 -->
+    <el-dialog title="编辑岗位" :visible.sync="dialogFormVisible" style="hight:100px;line-height:1px">
       <el-form :model="formData" label-width="90px" style="margin-top:20px">
-        <el-form-item label="角色名称">
-          <el-input v-model="formData.name" autocomplete="off" style="width:90%"></el-input>
+        <el-form-item label="姓名">
+          <el-input v-model="formData.name" autocomplete="off" style="width:90%" readonly></el-input>
         </el-form-item>
-        <el-form-item label="角色描述">
-          <el-input v-model="formData.description" autocomplete="off" style="width:90%"></el-input>
-        </el-form-item>    
+        <!-- 笔试时间 -->
+        <el-form-item label="时间安排">
+          <el-date-picker 
+          v-model="formData.writtenTestTime"
+          type="date"
+          placeholder="笔试时间"
+          readonly
+          style="width: 50 %;">
+        </el-date-picker>
+
+        <!-- 面试时间 -->
+        <el-date-picker
+          v-model="formData.interviewTime"  
+          type="date"
+          placeholder="面试时间"
+          readonly
+          style="width: 50%;">
+        </el-date-picker> 
+        </el-form-item>
+        <el-form-item label="状态">
+          <!-- 过程状态 -->
+        <el-select disabled v-model="formData.progressState" placeholder="过程状态" style="width: 40%;">
+          <el-option
+            v-for="item in progressState"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
+        </el-select>
+
+        <!-- 通过状态 -->
+        <el-select disabled v-model="formData.passState" placeholder="通过状态" style="width: 50%;">
+          <el-option
+            v-for="item in passState"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
+        </el-select>
+        </el-form-item>
+        <!-- 发offer -->
+        <el-form-item label="同意入职">
+          <el-select v-model="formData.offer" placeholder="同意入职" style="width: 40%;">
+          <el-option
+            v-for="item in offer"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
+        </el-select>
+
+        </el-form-item>
+        
+
+        
+
+        
+
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
         <el-button type="primary" @click="saveOrUpdate">确 定</el-button>
       </div>
     </el-dialog>
-
-    <el-dialog :title="'为【'+formData.name+'】分配权限'" :visible.sync="permFormVisible" style="hight:100px;line-height:1px">
-      <el-tree
-        :data="treeData"
-        :check-strictly="true"
-        default-expand-all	
-        show-checkbox
-        node-key="id"
-        ref="tree"
-        :default-checked-keys="checkNodes"
-        :props="{label:'name'}">
-      </el-tree>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="permFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="assignPrem">确 定</el-button>
-      </div>
-    </el-dialog>
   </div>
 </template>
 
 <script>
-import {list,add,update,remove,detail,assignPrem} from "@/api/base/role"
-import * as permApi from "@/api/base/permissions"
+import {list,add,update,remove,detail} from "@/api/base/applicant"
+import * as permApi from "@/api/base/recruitment"
 import commonApi from "@/utils/common"
 import PageTool from './../../components/page/page-tool'
 var _this = null
@@ -71,6 +126,27 @@ export default {
   props: ['objId'],
   data() {
     return {
+      progressState: [{
+          value: 3,
+          label: '主管面试'
+        }],
+      passState:[{
+          value: 0,
+          label: '未开始',
+      },{
+          value: 1,
+          label: '通过',
+      },{
+          value: 2,
+          label: '未通过',
+      }],
+      offer:[{
+          value: 0,
+          label: '否'
+      },{
+          value: 1,
+          label: '是',
+      }],
       formData:{},
       treeData:[],
       checkNodes:[],
@@ -79,6 +155,7 @@ export default {
       dataList:[],
       counts:0,
       requestParameters:{
+        state:3,
         page: 1,
         pagesize: 10
       }    
@@ -153,6 +230,7 @@ export default {
     // 获取详情
     doQuery() {
       list(this.requestParameters).then(res => {
+          console.log(res.data.data)
           this.dataList = res.data.data.rows
           this.counts = res.data.data.total
         })

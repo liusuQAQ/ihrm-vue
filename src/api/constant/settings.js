@@ -160,7 +160,7 @@ export default {
       value: '考勤'
     },
     {
-      id: 'recruits',
+      id: 'recruitment',
       value: '招聘'
     },
     {

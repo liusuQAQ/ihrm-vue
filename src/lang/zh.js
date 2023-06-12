@@ -8,6 +8,7 @@ export default {
     logs: '日志管理',
     example: '示例',
     table: '数据列表',
+    recruitment:'招聘管理',
 
     employees: '员工',
     employeesList: '员工管理',

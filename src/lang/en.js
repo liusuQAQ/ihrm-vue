@@ -10,6 +10,7 @@ export default {
     table: 'table',
 
     employees: 'employees',
+    recruitment:'recruitment',
     employeesList: 'employees',
     employeesInfo: 'Personal information',
     postInfo: 'Job information',
